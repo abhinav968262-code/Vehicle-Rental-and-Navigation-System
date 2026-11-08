@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DriveEase – Vehicle Rental &amp; Navigation</title>
+<style>
+:root{--bg:#f6f8fc;--surf:#fff;--ink:#14213d;--mute:#5a6785;--line:#d5deee;--sign:#1d4ed8;--signt:#fff;--route:#f5b700;--yellow:#facc15;--purple:#7c3aed;--olive:#566f1b;--bad:#b3261e;--road:#a9b8d6;--sky:#0ea5e9;--amber:#f59e0b;--coral:#ef6351;--tint:#eaf1ff}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1626;--surf:#16223a;--ink:#e8eefb;--mute:#9db0d0;--line:#2a3a5a;--sign:#6ea0ff;--signt:#08142e;--route:#fde047;--yellow:#fde047;--purple:#b794ff;--olive:#a9c44a;--bad:#ff8a80;--road:#4a5f85;--sky:#38bdf8;--amber:#fbbf24;--coral:#ff8a7a;--tint:#1d2d4d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Segoe UI",system-ui,sans-serif}
+header{background:linear-gradient(100deg,var(--sign),var(--purple));color:var(--signt);padding:14px 20px 0;border-bottom:6px solid var(--yellow)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:26px}h2{margin:0 0 8px;font-size:18px;padding-left:10px;border-left:4px solid var(--yellow)}
+#who{font-size:14px}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:10px}
+nav button{background:transparent;color:inherit;border:0;padding:10px 16px;font:600 14px inherit;cursor:pointer;border-radius:8px 8px 0 0;white-space:nowrap}
+nav button.on{background:var(--bg);color:var(--ink)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+section{display:none}section.on{display:block}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.card{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stat:nth-child(4n+2){border-top-color:var(--purple)}.stat:nth-child(4n+3){border-top-color:var(--yellow)}.stat:nth-child(4n+4){border-top-color:var(--olive)}.stat{border-top:4px solid var(--sign);flex:1;min-width:120px;background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.stat b{font-size:24px;display:block}
+label{display:block;font-size:13px;color:var(--mute);margin:8px 0 2px}
+input,select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+.row{display:flex;gap:10px}.row>*{flex:1}
+button.p,button.s{padding:8px 14px;border-radius:6px;font:600 14px inherit;cursor:pointer;margin-top:12px;border:1px solid var(--sign)}
+button.p{background:linear-gradient(90deg,var(--sign),var(--purple));color:var(--signt);border-color:transparent}button.s{background:transparent;color:var(--purple);border-color:var(--purple)}
+button.sm{margin:0;padding:3px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--route)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}th{color:var(--mute);font-weight:600;background:rgba(124,58,237,.08)}
+.wrap{overflow-x:auto}
+.ok{color:var(--olive);font-weight:600}.no{color:var(--bad);font-weight:600}.muted{color:var(--mute)}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);max-width:92vw;white-space:pre-wrap;padding:10px 16px;border-radius:8px;background:var(--surf);border:1px solid var(--line);border-left:6px solid var(--sign);box-shadow:0 4px 18px #0004;display:none;z-index:9}
+#toast.bad{border-left-color:var(--bad)}
+pre{white-space:pre-wrap;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;margin:10px 0 0;font:13px/1.4 Consolas,monospace}
+svg.map{width:100%;height:auto;background:var(--bg);border-radius:8px;border:1px solid var(--line)}
+
+header{background:linear-gradient(120deg,#1d4ed8 0%,#2563eb 55%,#0ea5e9 100%);border-bottom:6px solid var(--route)}
+@media (prefers-color-scheme:dark){header{background:linear-gradient(120deg,#1e3a8a,#1d4ed8 60%,#0369a1);color:#fff}nav button.on{color:var(--ink)}}
+h2{padding-left:10px;border-left:5px solid var(--route)}
+.card{border-top:3px solid var(--sky)}
+.stat{border-top:4px solid var(--sign)}
+.stat:nth-child(2){border-top-color:var(--amber)}.stat:nth-child(3){border-top-color:var(--route)}.stat:nth-child(4){border-top-color:var(--coral)}
+.stat:nth-child(1) b{color:var(--sign)}.stat:nth-child(2) b{color:var(--amber)}.stat:nth-child(3) b{color:var(--olive)}.stat:nth-child(4) b{color:var(--coral)}
+th{background:var(--tint);color:var(--sign);font-weight:600}
+tr:hover td{background:var(--tint)}
+.ok,.no{display:inline-block;padding:1px 10px;border-radius:99px;font-size:13px}
+.ok{background:color-mix(in srgb,var(--route) 18%,transparent)}
+.no{background:color-mix(in srgb,var(--coral) 18%,transparent);color:var(--coral)}
+button.s{background:var(--tint)}
+button.p:hover{filter:brightness(1.1)}
+nav button:hover{background:#ffffff26}nav button.on:hover{background:var(--bg)}
+body{background:linear-gradient(180deg,var(--tint) 0,var(--bg) 220px) no-repeat,var(--bg)}
+</style></head><body>
+<header>
+ <div class="top"><div><h1>DriveEase</h1><div>Vehicle rental and navigation</div></div>
+ <div id="who"></div></div>
+ <nav id="nav"></nav>
+</header>
+<main>
+<section id="s-book">
+ <div class="stats" id="stats"></div>
+ <div class="grid">
+  <div class="card"><h2>Plan a trip</h2>
+   <div class="row"><div><label for="pk">Pickup</label><select id="pk"></select></div><div><label for="ds">Destination</label><select id="ds"></select></div></div>
+   <button class="p" id="goRoute">Show shortest route</button>
+   <div id="routeTxt" class="muted" style="margin-top:8px">Choose two locations to see the shortest road route.</div>
+  </div>
+  <div class="card"><h2>Map</h2><div id="map1"></div></div>
+ </div>
+ <div class="card"><h2>Book a vehicle</h2>
+  <div class="row"><div><label for="bv">Vehicle</label><select id="bv"></select></div><div><label for="bd">Days</label><input id="bd" type="number" min="1" value="3"></div></div>
+  <p class="muted">Uses the pickup and destination chosen above. Leave them if you only want to rent.</p>
+  <button class="p" id="book">Book vehicle</button>
+ </div>
+ <div class="card wrap"><h2>Vehicles</h2>
+  <div class="row"><div><label for="sid">Find by vehicle ID</label><input id="sid" type="number" min="1"></div>
+  <div style="flex:0 0 auto;display:flex;gap:8px;align-items:flex-end"><button class="s" id="search">Search</button><button class="s" id="sort">Sort by price</button></div></div>
+  <pre id="sres" hidden></pre><div id="vtable" style="margin-top:10px"></div>
+ </div>
+</section>
+
+<section id="s-rent"><div class="card wrap"><h2>Rentals</h2><div id="rtable"></div></div></section>
+
+<section id="s-fb"><div class="grid">
+ <div class="card"><h2>Send feedback</h2><div id="fbform"></div></div>
+ <div class="card"><h2>Customer feedback</h2><div id="fbstat" class="muted"></div><div id="fblist"></div></div></div></section>
+
+<section id="s-veh"><div class="grid">
+ <div class="card"><h2>Add vehicle</h2>
+  <div class="row"><div><label for="av-id">ID</label><input id="av-id" type="number" min="1"></div><div><label for="av-p">Price per day</label><input id="av-p" type="number" min="1"></div></div>
+  <label for="av-m">Model</label><input id="av-m"><label for="av-t">Type</label><select id="av-t"><option>Car</option><option>SUV</option><option>Bike</option></select>
+  <button class="p" id="av-go">Add vehicle</button></div>
+ <div class="card"><h2>Update vehicle</h2>
+  <label for="uv-id">Vehicle</label><select id="uv-id"></select>
+  <label for="uv-m">New model</label><input id="uv-m"><div class="row"><div><label for="uv-t">New type</label><select id="uv-t"><option>Car</option><option>SUV</option><option>Bike</option></select></div><div><label for="uv-p">New price per day</label><input id="uv-p" type="number" min="1"></div></div>
+  <button class="p" id="uv-go">Update vehicle</button></div></div></section>
+
+<section id="s-mnt"><div class="grid">
+ <div class="card"><h2>Add maintenance record</h2>
+  <label for="mt-v">Vehicle</label><select id="mt-v"></select><label for="mt-s">Description</label><input id="mt-s">
+  <div class="row"><div><label for="mt-c">Cost</label><input id="mt-c" type="number" min="0"></div><div><label for="mt-st">Status</label><select id="mt-st"><option value="1">Pending</option><option value="2">Completed</option></select></div></div>
+  <button class="p" id="mt-go">Add record</button></div>
+ <div class="card wrap"><h2>Records</h2><div id="mtlist"></div></div></div></section>
+
+<section id="s-net"><div class="grid">
+ <div class="card"><h2>Road network</h2><div id="map2"></div></div>
+ <div><div class="card"><h2>Add location</h2><label for="nl">Name</label><input id="nl"><button class="p" id="nl-go">Add location</button></div>
+ <div class="card"><h2>Add road</h2><div class="row"><div><label for="ra">From</label><select id="ra"></select></div><div><label for="rb">To</label><select id="rb"></select></div></div>
+ <label for="rk">Distance (km)</label><input id="rk" type="number" min="1" value="5"><button class="p" id="rd-go">Add road</button></div></div></div></section>
+
+<section id="s-rep">
+ <div class="stats" id="repstats"></div>
+ <div class="grid">
+  <div class="card"><h2>Report</h2><button class="p" id="rep-go" style="margin-top:0">Generate report</button><pre id="repout" hidden></pre></div>
+  <div class="card"><h2>Saved files</h2><button class="p" id="sv-go" style="margin-top:0">Save all summaries</button>
+   <label for="rf">Read a file</label><select id="rf"><option>payments.txt</option><option>feedback.txt</option><option>maintenance.txt</option></select>
+   <button class="s" id="rf-go">Read file</button><pre id="fout" hidden></pre></div></div>
+ <div class="card wrap"><h2>Payments</h2><div id="paylist"></div></div>
+ <div class="card wrap"><h2>Customers</h2><div id="custlist"></div></div>
+</section>
+
+<section id="s-acc"><div class="grid">
+ <div class="card"><h2>Log in</h2>
+  <label for="lg-r">I am a</label><select id="lg-r"><option value="customer">Customer</option><option value="admin">Admin</option></select>
+  <label for="lg-u">Username</label><input id="lg-u" autocomplete="username"><label for="lg-p">Password</label><input id="lg-p" type="password" autocomplete="current-password">
+  <button class="p" id="lg-go">Log in</button>
+  <p class="muted">Demo: customer / cust123, admin / admin123</p></div>
+ <div class="card"><h2>Register</h2>
+  <div class="row"><div><label for="rg-id">User ID</label><input id="rg-id" type="number" min="1"></div><div><label for="rg-n">Name</label><input id="rg-n"></div></div>
+  <label for="rg-ph">Phone</label><input id="rg-ph"><div class="row"><div><label for="rg-u">Username</label><input id="rg-u"></div><div><label for="rg-p">Password</label><input id="rg-p" type="password"></div></div>
+  <button class="p" id="rg-go">Register as customer</button><button class="s" id="rg-ad" hidden>Register as admin</button></div></div></section>
+</main>
+<div id="toast" role="status"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let S=null,route=[],tab="book";
+async function api(action,fields=[],raw=false){
+  try{
+    const r=await fetch("/api/"+action,{method:"POST",body:fields.map(x=>String(x).replace(/[\r\n]+/g," ")).join("\n")});
+    const j=await r.json();S=j.state;
+    if(!raw)toast(clean(j.msg),!j.ok);
+    render();return j;
+  }catch(e){toast("Cannot reach the server. Start server.exe and open http://localhost:8080",true)}
+}
+function clean(m){return m.split("\n").map(l=>l.replace(/^.*(Enter|Create|Select)[^:\n]*:\s*/,"")).filter(l=>l.trim()&&!/^[=\-]{3,}|^\d\. /.test(l.trim())).join("\n")}
+let tt;function toast(m,bad){const t=$("toast");t.textContent=m;t.className=bad?"bad":"";t.style.display="block";clearTimeout(tt);tt=setTimeout(()=>t.style.display="none",4500)}
+const role=()=>S.session.role,money=n=>"₹"+Number(n).toLocaleString();
+const tbl=(h,rows,empty)=>rows.length?`<table><tr>${h.map(x=>`<th>${x}</th>`).join("")}</tr>${rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`:`<p class="muted">${empty}</p>`;
+const opts=(el,items)=>{const v=el.value;el.innerHTML=items.map(([k,l])=>`<option value="${esc(k)}">${esc(l)}</option>`).join("");if([...el.options].some(o=>o.value===v))el.value=v};
+
+function mapSvg(hl){
+  const L=S.nav.locations,n=L.length;if(!n)return'<p class="muted">No locations yet.</p>';
+  const pos={};L.forEach((k,i)=>{const a=2*Math.PI*i/n-Math.PI/2;pos[k]=[320+230*Math.cos(a),175+120*Math.sin(a)]});
+  const on=new Set();for(let i=0;i<hl.length-1;i++)on.add([hl[i],hl[i+1]].sort().join("|"));
+  let s='<svg class="map" viewBox="0 0 640 350" role="img" aria-label="Road network map">';
+  for(const r of S.nav.roads){const A=pos[r.a],B=pos[r.b],h=on.has([r.a,r.b].sort().join("|"));
+    s+=`<line x1="${A[0]}" y1="${A[1]}" x2="${B[0]}" y2="${B[1]}" stroke="${h?"var(--route)":"var(--road)"}" stroke-width="${h?7:4}" stroke-linecap="round"/><text x="${(A[0]+B[0])/2}" y="${(A[1]+B[1])/2-5}" font-size="12" text-anchor="middle" fill="var(--ink)" paint-order="stroke" stroke="var(--bg)" stroke-width="4">${r.km}</text>`}
+  L.forEach(k=>{const p=pos[k];s+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="var(--sign)" stroke="${hl.includes(k)?"var(--route)":"var(--surf)"}" stroke-width="3"/><text x="${p[0]}" y="${p[1]+24}" font-size="12" text-anchor="middle" fill="var(--ink)">${esc(k)}</text>`});
+  return s+"</svg>";
+}
+
+const TABS=[["book","Book & navigate",()=>1],["rent","My rentals",()=>role()!=="guest"],["fb","Feedback",()=>1],["veh","Manage vehicles",()=>role()==="admin"],["mnt","Maintenance",()=>role()==="admin"],["net","Network",()=>role()==="admin"],["rep","Reports",()=>role()==="admin"],["acc","Account",()=>1]];
+function render(){
+  if(!S)return;
+  const ss=S.session,L=S.nav.locations.map(k=>[k,k]);
+  $("who").innerHTML=ss.role==="guest"?"Browsing as guest":`${esc(ss.name)} (${ss.role}) <button class="s sm" id="out" style="color:inherit;border-color:currentColor">Log out</button>`;
+  const vis=TABS.filter(t=>t[2]());if(!vis.some(t=>t[0]===tab))tab="book";
+  $("nav").innerHTML=vis.map(t=>`<button data-t="${t[0]}" class="${t[0]===tab?"on":""}">${t[1]}</button>`).join("");
+  document.querySelectorAll("main>section").forEach(s=>s.classList.toggle("on",s.id==="s-"+tab));
+  ["pk","ds","ra","rb"].forEach(id=>opts($(id),L));
+  const V=S.vehicles,av=V.filter(v=>v.available);
+  $("stats").innerHTML=`<div class="stat"><b>${av.length}</b>Available</div><div class="stat"><b>${V.length-av.length}</b>Rented</div><div class="stat"><b>${S.nav.locations.length}</b>Locations</div><div class="stat"><b>${S.nav.roads.length}</b>Roads</div>`;
+  $("map1").innerHTML=mapSvg(route);$("map2").innerHTML=mapSvg([]);
+  opts($("bv"),av.map(v=>[v.id,`#${v.id} ${v.model} (${v.type}) ${money(v.price)}/day`]));
+  $("vtable").innerHTML=tbl(["ID","Model","Type","Per day","Status"],V.map(v=>[v.id,esc(v.model),esc(v.type),money(v.price),`<span class="${v.available?"ok":"no"}">${v.available?"Available":"Rented"}</span>`]),"No vehicles yet.");
+  $("rtable").innerHTML=tbl(["ID","Vehicle","Trip","Days","Total","Paid","Status",""],S.rentals.map(r=>{
+    const due=r.total-r.paid,a=[];
+    if(r.active)a.push(`<button class="p sm" data-ret="${r.id}">Return</button>`);
+    if(ss.role==="customer"&&due>0)a.push(`<button class="s sm" data-pay="${r.id}" data-due="${due}">Pay ${money(due)}</button>`);
+    return[r.id,"#"+r.vehicle,r.from?esc(r.from)+" → "+esc(r.to):"–",r.days,money(r.total),money(r.paid),`<span class="${r.active?"no":"ok"}">${r.active?"Active":"Completed"}</span>`,a.join(" ")]}),"No rentals yet.");
+  $("fbform").innerHTML=ss.role==="customer"?`<label for="fr">Rating</label><select id="fr"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select><label for="fc">Comment</label><input id="fc"><button class="p" id="fb-go">Submit feedback</button>`:`<p class="muted">Log in as a customer to send feedback.</p>`;
+  $("fbstat").textContent=S.feedback.length?`Average rating ${S.stats.avgRating.toFixed(1)}/5 from ${S.stats.feedback} review(s)`:"";
+  $("fblist").innerHTML=tbl(["Customer","Rating","Comment"],S.feedback.map(f=>[f.customer,f.rating+"/5",esc(f.comment)]),"No feedback yet.");
+  const vo=V.map(v=>[v.id,`#${v.id} ${v.model}`]);opts($("uv-id"),vo);opts($("mt-v"),vo);
+  $("mtlist").innerHTML=tbl(["Vehicle","Service","Cost","Status"],S.maintenance.map(m=>["#"+m.vehicle,esc(m.service),money(m.cost),m.status]),"No records.");
+  $("repstats").innerHTML=`<div class="stat"><b>${money(S.stats.revenue)}</b>Revenue</div><div class="stat"><b>${money(S.stats.expenses)}</b>Maintenance</div><div class="stat"><b>${money(S.stats.revenue-S.stats.expenses)}</b>After maintenance</div><div class="stat"><b>${S.stats.avgRating.toFixed(1)}</b>Avg rating</div>`;
+  $("paylist").innerHTML=tbl(["ID","Rental","Amount","Method","Status"],S.payments.map(p=>[p.id,p.rental,money(p.amount),esc(p.method),p.status]),"No payments yet.");
+  $("custlist").innerHTML=tbl(["ID","Name","Phone","Username"],S.customers.map(c=>[c.id,esc(c.name),esc(c.phone),esc(c.username)]),"No customers.");
+  $("rg-ad").hidden=ss.role!=="admin";
+}
+const val=id=>$(id).value;
+document.addEventListener("click",async e=>{
+  const t=e.target,d=t.dataset;
+  if(d.t){tab=d.t;render();return}
+  if(t.id==="out"){route=[];await api("logout")}
+  if(d.ret)await api("return_rental",[d.ret]);
+  if(d.pay){const m=prompt("Payment method (Cash/UPI/Card):","UPI");if(m)await api("pay",[d.pay,d.due,m])}
+  switch(t.id){
+   case"goRoute":{const j=await api("route",[val("pk"),val("ds")],true);if(j&&j.ok){route=j.data.path;$("routeTxt").innerHTML=`<b>${route.map(esc).join(" → ")}</b><br>${j.data.km} km · about ${Math.round(j.data.km/40*60)} min at 40 km/h`}else if(j){route=[];$("routeTxt").textContent=clean(j.msg);}render();break}
+   case"book":{const j=await api("book",[val("bv"),val("bd"),val("pk"),val("ds")]);if(j&&j.ok&&j.data){route=j.data.path;$("routeTxt").innerHTML=`<b>${route.map(esc).join(" → ")}</b><br>${j.data.km} km`;render()}break}
+   case"search":{const j=await api("search_vehicle",[val("sid")],true);$("sres").hidden=false;$("sres").textContent=j.msg;break}
+   case"sort":await api("sort_vehicles");break;
+   case"fb-go":await api("feedback",[val("fr"),val("fc")]);break;
+   case"av-go":await api("add_vehicle",[val("av-id"),val("av-m"),val("av-t"),val("av-p")]);break;
+   case"uv-go":await api("update_vehicle",[val("uv-id"),val("uv-m"),val("uv-t"),val("uv-p")]);break;
+   case"mt-go":await api("add_maintenance",[val("mt-v"),val("mt-s"),val("mt-c"),val("mt-st")]);break;
+   case"nl-go":await api("add_location",[val("nl")]);break;
+   case"rd-go":await api("add_road",[val("ra"),val("rb"),val("rk")]);break;
+   case"rep-go":{const j=await api("report",[],true);$("repout").hidden=false;$("repout").textContent=j.msg;break}
+   case"sv-go":await api("save_all");break;
+   case"rf-go":{const j=await api("read_file",[val("rf")],true);$("fout").hidden=false;$("fout").textContent=j.ok?j.msg.replace(/^[\s\S]*?(=+ FILE)/,"$1"):clean(j.msg);break}
+   case"lg-go":{const j=await api("login",[val("lg-r"),val("lg-u"),val("lg-p")]);if(j&&j.ok){$("lg-p").value="";tab="book";render()}break}
+   case"rg-go":case"rg-ad":{const j=await api(t.id==="rg-go"?"register_customer":"register_admin",[val("rg-id"),val("rg-n"),val("rg-ph"),val("rg-u"),val("rg-p")]);if(j&&j.ok)["rg-id","rg-n","rg-ph","rg-u","rg-p"].forEach(i=>$(i).value="");break}
+  }
+});
+fetch("/api/state").then(r=>r.json()).then(j=>{S=j.state;render()}).catch(()=>toast("Cannot reach the server. Start it and open http://localhost:8080",true));
+</script></body></html>
